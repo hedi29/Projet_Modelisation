@@ -4,67 +4,74 @@ from matplotlib.animation import FuncAnimation
 from poisson import Poisson
 import matplotlib.colors as mcolors
 
-# Création d'un banc de poissons
-nb_poissons = 20
-# Partie 1 utilisera une zone de -5 à 5 pour être compatible avec la nouvelle classe Poisson
-# Si un espace de [0,10] est crucial, la création et les rebonds devront être ajustés différemment.
-ZONE_LIMITE_PARTIE1 = 5
-poissons = Poisson.creer_banc(nb_poissons, zone_limite=ZONE_LIMITE_PARTIE1)
+""" Partie 1 : Mouvement Aleatoire
 
-# Configuration du graphique
+Simulation d'un banc de poissons 2D avec rebond sur les bords.
+
+Chaque poisson est représenté par une position et une vitesse entre autres parametres.
+La simulation est animée à l'aide de matplotlib.
+"""
+#---------------- Paramètres de simulation ---------------------
+n = 20           # Nombre de poissons
+xmin, xmax = 0, 10 
+ymin, ymax = 0, 10
+dt = 0.05
+
+#---------------- Initialisation des poissons ---------------------
+
+poissons = Poisson.creer_banc(n,  xmin, xmax, ymin, ymax)
+
+#----------------- Configuration du graphique -------------------
+
 fig, ax = plt.subplots(figsize=(10, 10))
-# Ajustement des limites du graphique pour correspondre à ZONE_LIMITE_PARTIE1
-ax.set_xlim(-ZONE_LIMITE_PARTIE1, ZONE_LIMITE_PARTIE1)
-ax.set_ylim(-ZONE_LIMITE_PARTIE1, ZONE_LIMITE_PARTIE1)
-ax.set_title('Simulation de poissons en temps réel (Partie 1 modifiée)')
+ax.set_xlim(xmin, xmax)
+ax.set_ylim(ymin, ymax)
+ax.set_title('Simulation de poissons en temps réel')
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
 
-# Positions initiales
+# Données initiales
 positions = np.array([[p.x, p.y] for p in poissons])
-velocities_x = np.array([p.Vx for p in poissons])
-velocities_y = np.array([p.Vy for p in poissons])
-speeds = np.array([p.get_vitesse() for p in poissons])
+vitesses_x, vitesses_y = np.array([p.Vx for p in poissons]), np.array([p.Vy for p in poissons])
+vitesses = np.sqrt(vitesses_x**2 + vitesses_y**2)
 
-# Points pour représenter les poissons
-scatter = ax.scatter(positions[:, 0], positions[:, 1], c=speeds, cmap='viridis', s=100, alpha=0.8)
+# Affichage : points colorés selon la vitesse + flèches directionnelles
+points = ax.scatter(positions[:, 0], positions[:, 1], c=vitesses, cmap='viridis', s=100, alpha=0.8)
+fleches = ax.quiver(positions[:, 0], positions[:, 1], vitesses_x, vitesses_y, width=0.003, scale=40)
 
-# Flèches pour représenter les directions des poissons
-quiver = ax.quiver(positions[:, 0], positions[:, 1], velocities_x, velocities_y, width=0.003, scale=40)
+#----------------- Fonctions pour l'animation ----------------------
 
-# Pas de temps pour la simulation
-dt = 0.05
-
-# Fonction d'initialisation pour l'animation
 def init():
-    return scatter, quiver
+    return points, fleches
 
-# Fonction de mise à jour pour l'animation
 def update(frame):
-    # Mise à jour de la position de chaque poisson
+    """Mise à jour des positions, vitesses et affichage à chaque frame."""
+     
     for poisson in poissons:
-        poisson.move(dt) # Utilise la méthode renommée 'move'
-        poisson.check_boundary(ZONE_LIMITE_PARTIE1) # Utilise la méthode renommée et paramétrée
+        poisson.deplacer(dt) 
+        poisson.verifier_bords(xmin, xmax, ymin, ymax)
     
     # Mise à jour des positions dans le graphique
     positions = np.array([[p.x, p.y] for p in poissons])
-    velocities_x = np.array([p.Vx for p in poissons])
-    velocities_y = np.array([p.Vy for p in poissons])
-    speeds = np.array([p.get_vitesse() for p in poissons])
+    vitesses_x = np.array([p.Vx for p in poissons])
+    vitesses_y = np.array([p.Vy for p in poissons])
+    vitesses = np.array([p.get_vitesse() for p in poissons])
     
-    scatter.set_offsets(positions)
-    scatter.set_array(speeds)
+    points.set_offsets(positions)
+    points.set_array(vitesses)
     
-    quiver.set_offsets(positions)
-    quiver.set_UVC(velocities_x, velocities_y)
+    fleches.set_offsets(positions)
+    fleches.set_UVC(vitesses_x, vitesses_y)
     
-    return scatter, quiver
+    return points, fleches
+
+#------------------ Animation ------------------------------------
 
 # Création de l'animation
 ani = FuncAnimation(fig, update, frames=500, init_func=init, blit=True, interval=20)
 
 # Ajout d'une barre de couleur pour montrer la vitesse
-cbar = plt.colorbar(scatter)
+cbar = plt.colorbar(points)
 cbar.set_label('Vitesse')
 
 # Affichage

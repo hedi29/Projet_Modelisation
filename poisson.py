@@ -2,50 +2,50 @@ import numpy as np
 import random
 
 class Poisson:
+    
     def __init__(self, x, y, Vx, Vy, color='blue'):
-        self.x = x
-        self.y = y
-        self.Vx = Vx
-        self.Vy = Vy
+        # Initialisation de la position (x, y) 
+        self.x, self.y = x, y
+        # Initialisation de la vitesse (Vx, Vy)
+        self.Vx, self.Vy = Vx, Vy
+        # Initialisation des autres proprietes 
         self.is_contaminated = False
         self.color = color
 
-    def move(self, Dt):
-        self.x = self.x + self.Vx*Dt
-        self.y = self.y + self.Vy*Dt
+    def deplacer(self, Dt):
+        """Gère les deplacements des poissons en fonction de la vitesse (Vx, Vy) et le pas du temps Dt"""
+        self.x += self.Vx * Dt
+        self.y += self.Vy * Dt
     
-    def check_boundary(self, zone_limite):
-        """Gère les rebonds sur les bords de l'espace carré [-zone_limite, zone_limite]"""
-        if self.x < -zone_limite:
-            self.x = -zone_limite
+    def verifier_bords(self, xmin, xmax, ymin, ymax):
+        """Gère les rebonds sur les bords """
+        # Gestion des bords au niveau de l'axe des x 
+        if self.x < xmin:
+            self.x = xmin
+            self.Vx = -self.Vx  
+        elif self.x > xmax:
+            self.x = xmax
             self.Vx = -self.Vx
-        elif self.x > zone_limite:
-            self.x = zone_limite
-            self.Vx = -self.Vx
-            
-        if self.y < -zone_limite:
-            self.y = -zone_limite
+        # Gestion des bords au niveau de l'axe des y 
+        if self.y < ymin:
+            self.y = ymin
             self.Vy = -self.Vy
-        elif self.y > zone_limite:
-            self.y = zone_limite
+        elif self.y > ymax:
+            self.y = ymax
             self.Vy = -self.Vy
     
-    def contaminate(self, speed_variation_scale=0.1):
-        """Mark the fish as contaminated and alter its state."""
+    def contaminer(self, dV=0.1):
+        """Contamine le poisson et modifie son etat"""
         if not self.is_contaminated:
             self.is_contaminated = True
             self.color = 'green'
-            variation_vx = random.uniform(-speed_variation_scale, speed_variation_scale)
-            variation_vy = random.uniform(-speed_variation_scale, speed_variation_scale)
-            current_speed = np.sqrt(self.Vx**2 + self.Vy**2)
-            new_vx = self.Vx + variation_vx
-            new_vy = self.Vy + variation_vy
-            new_speed = np.sqrt(new_vx**2 + new_vy**2)
-            self.Vx = new_vx
-            self.Vy = new_vy
+            dVx = random.uniform(-dV, dV)
+            dVy = random.uniform(-dV, dV)
+            self.Vx = self.Vx + dVx
+            self.Vy = self.Vy + dVy
 
     def get_position(self):
-        """Returns the position of the fish as a tuple (x, y)."""
+        """Retourne la position du poisson en tuple (x, y)."""
         return (self.x, self.y)
 
     def get_vitesse(self):
@@ -53,15 +53,23 @@ class Poisson:
         return np.sqrt(self.Vx**2 + self.Vy**2)
     
     @staticmethod
-    def creer_banc(nb_poissons, zone_limite, v_min=-1, v_max=1):
+    def distance_euclidienne(poisson1, poisson2):
+        """Calcule la distance euclidienne entre deux poissons."""
+        pos1 = np.array(poisson1.get_position())
+        pos2 = np.array(poisson2.get_position())
+        return np.linalg.norm(pos1 - pos2)
+    
+    @staticmethod
+    def creer_banc(nb_poissons, xmin, xmax, ymin, ymax, Vmin=-1, Vmax=1):
         """Crée un banc de poissons avec des positions et vitesses aléatoires dans [-zone_limite, zone_limite]"""
         poissons = []
         for _ in range(nb_poissons):
-            x = np.random.uniform(-zone_limite, zone_limite)
-            y = np.random.uniform(-zone_limite, zone_limite)
-            vx = np.random.uniform(v_min, v_max)
-            vy = np.random.uniform(v_min, v_max)
-            poissons.append(Poisson(x, y, vx, vy))
+            x = np.random.uniform(xmin, xmax)
+            y = np.random.uniform(ymin, ymax)
+            Vx = np.random.uniform(Vmin, Vmax)
+            Vy = np.random.uniform(Vmin, Vmax)
+            poissons.append(Poisson(x, y, Vx, Vy))
         return poissons
+    
         
         
