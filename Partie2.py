@@ -13,7 +13,7 @@ Chaque poisson est représenté par une position, une vitesse et un état de con
 La simulation est animée à l'aide de matplotlib.
 """
 #---------------- Paramètres de simulation ---------------------
-n = 20           
+n = 20     # Nombre de poissons      
 xmin, xmax = 0, 10 
 ymin, ymax = 0, 10
 dt = 0.1
@@ -33,8 +33,9 @@ def run_simulation():
     if banc_de_poissons:
         leader = random.choice(banc_de_poissons)
         leader.contaminer(dV) 
+        leader.color = 'red'
         
-    plt.ion()
+    
     fig, ax = plt.subplots(figsize=(10, 10))
 
     for iter in range(nb_iter):
@@ -63,11 +64,12 @@ def run_simulation():
         ax.set_ylabel("Position Y")
         ax.grid(True)
         
-        plt.draw()
         plt.pause(0.01)
-
-    plt.ioff() 
-    plt.show() 
+        
+        
+    plt.pause(2)
+    
+    plt.close() 
 
 if __name__ == "__main__":
     run_simulation()
