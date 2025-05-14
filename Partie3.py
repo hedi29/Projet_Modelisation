@@ -2,21 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from poisson import Poisson
-from scipy.spatial import KDTree
 
 """ Partie 3 : Règles Comportementales de Aoki
 
 Simulation d'un banc de poissons 2D avec les règles d'Aoki (répulsion, alignement, attraction).
 
 Chaque poisson est représenté par une position et une vitesse, et ajuste son comportement
-selon les trois règles fondamentales : répulsion, alignement et attraction.
+selon les trois règles fondamentales :
+- Répulsion : les poissons s'éloignent les uns des autres quand ils sont trop proches
+- Alignement : les poissons s'alignent avec leurs voisins à distance moyenne
+- Attraction : les poissons se rapprochent de leurs voisins éloignés
 """
 
 #---------------- Paramètres de simulation ---------------------
-n = 50           # Nombre de poissons, augmenté pour mieux observer les comportements
+n = 50           # Nombre de poissons
 xmin, xmax = 0, 10 
 ymin, ymax = 0, 10
-dt = 0.1
+dt = 0.05
 
 # Paramètres des rayons pour les règles d'Aoki
 rayon_repulsion = 1.0
@@ -32,93 +34,78 @@ k_attraction = 0.01
 vitesse_max = 1.5
 
 #---------------- Initialisation des poissons ---------------------
-poissons = Poisson.creer_banc(n, xmin, xmax, ymin, ymax, -1, 1)
+poissons = Poisson.creer_banc(n, xmin, xmax, ymin, ymax, -0.5, 0.5)
 
 #----------------- Configuration du graphique -------------------
-fig, ax = plt.subplots(figsize=(10, 10))
-ax.set_xlim(xmin-1, xmax+1)
-ax.set_ylim(ymin-1, ymax+1)
-ax.set_title('Simulation de banc de poissons avec les règles d\'Aoki')
+fig, ax = plt.subplots(figsize=(10, 10), facecolor='white')
+ax.set_xlim(xmin, xmax)
+ax.set_ylim(ymin, ymax)
+ax.set_title('Simulation des règles d\'Aoki')
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
+ax.set_facecolor('white')
+for spine in ax.spines.values():
+    spine.set_visible(True)
+    spine.set_color('black')
 
 # Données initiales
 positions = np.array([[p.x, p.y] for p in poissons])
-vitesses_x, vitesses_y = np.array([p.Vx for p in poissons]), np.array([p.Vy for p in poissons])
-vitesses = np.sqrt(vitesses_x**2 + vitesses_y**2)
+directions_x, directions_y = [], []
 
-# Poisson de référence pour visualiser les rayons (on prend le premier)
-poisson_ref_index = 0
-c0 = (poissons[poisson_ref_index].x, poissons[poisson_ref_index].y)
+# Normaliser les vecteurs de direction pour avoir des flèches de taille uniforme
+for p in poissons:
+    vx, vy = p.Vx, p.Vy
+    norme = np.sqrt(vx**2 + vy**2)
+    if norme == 0:
+        norme = 1  # Éviter la division par zéro
+    directions_x.append(vx / norme)
+    directions_y.append(vy / norme)
 
-# Affichage : points colorés selon la vitesse + flèches directionnelles
-points = ax.scatter(positions[:, 0], positions[:, 1], c=vitesses, cmap='viridis', s=100, alpha=0.8)
-fleches = ax.quiver(positions[:, 0], positions[:, 1], vitesses_x, vitesses_y, width=0.003, scale=40)
+# Affichage des flèches (poissons)
+fleches = ax.quiver(positions[:, 0], positions[:, 1], directions_x, directions_y, 
+                   color='blue', width=0.005, scale=30, pivot='mid')
 
-# Cercles de visualisation pour le poisson de référence
-cercle_repulsion = plt.Circle(c0, rayon_repulsion, fill=False, color='r', linestyle='--', alpha=0.3)
-cercle_alignement = plt.Circle(c0, rayon_alignement, fill=False, color='g', linestyle='--', alpha=0.3)
-cercle_attraction = plt.Circle(c0, rayon_attraction, fill=False, color='b', linestyle='--', alpha=0.3)
+# Légende pour les règles d'Aoki
+ax.text(0.05, 0.95, f'Répulsion: R < {rayon_repulsion}', transform=ax.transAxes, color='red')
+ax.text(0.05, 0.92, f'Alignement: {rayon_repulsion} ≤ R < {rayon_alignement}', transform=ax.transAxes, color='green')
+ax.text(0.05, 0.89, f'Attraction: {rayon_alignement} ≤ R < {rayon_attraction}', transform=ax.transAxes, color='blue')
 
-ax.add_patch(cercle_repulsion)
-ax.add_patch(cercle_alignement)
-ax.add_patch(cercle_attraction)
-
-# Légende personnalisée pour les rayons
-from matplotlib.lines import Line2D
-legend_elements = [
-    Line2D([0], [0], color='r', linestyle='--', lw=1, label=f'Répulsion (R < {rayon_repulsion})'),
-    Line2D([0], [0], color='g', linestyle='--', lw=1, label=f'Alignement ({rayon_repulsion} ≤ R < {rayon_alignement})'),
-    Line2D([0], [0], color='b', linestyle='--', lw=1, label=f'Attraction ({rayon_alignement} ≤ R < {rayon_attraction})')
-]
-ax.legend(handles=legend_elements, loc='upper right')
-
-def appliquer_regles_aoki():
-    """Applique les règles d'Aoki à tous les poissons."""
-    Poisson.appliquer_regles_aoki(poissons, rayon_repulsion, rayon_alignement, rayon_attraction, 
-                                k_repulsion, k_alignement, k_attraction, vitesse_max)
-
+#----------------- Fonctions pour l'animation ----------------------
 def init():
-    """Initialisation de l'animation."""
-    return points, fleches, cercle_repulsion, cercle_alignement, cercle_attraction
+    return (fleches,)
 
 def update(frame):
     """Mise à jour des positions, vitesses et affichage à chaque frame."""
+    
     # Application des règles d'Aoki
-    appliquer_regles_aoki()
+    Poisson.appliquer_regles_aoki(poissons, rayon_repulsion, rayon_alignement, 
+                                 rayon_attraction, k_repulsion, k_alignement, 
+                                 k_attraction, vitesse_max)
     
     # Déplacement des poissons
     for poisson in poissons:
         poisson.deplacer(dt)
         poisson.verifier_bords(xmin, xmax, ymin, ymax)
     
-    # Mise à jour des états des poissons
+    # Mise à jour des positions dans le graphique
     positions = np.array([[p.x, p.y] for p in poissons])
-    vitesses_x, vitesses_y = np.array([p.Vx for p in poissons]), np.array([p.Vy for p in poissons])
-    vitesses = np.array([p.get_vitesse() for p in poissons])
+    vitesses_x = np.array([p.Vx for p in poissons])
+    vitesses_y = np.array([p.Vy for p in poissons])
     
-    points.set_offsets(positions)
-    points.set_array(vitesses)
+    # Normaliser les vecteurs de vitesse pour avoir des flèches de taille uniforme
+    normes = np.sqrt(vitesses_x**2 + vitesses_y**2)
+    normes[normes == 0] = 1  # Éviter la division par zéro
+    vitesses_x_norm = vitesses_x / normes
+    vitesses_y_norm = vitesses_y / normes
     
     fleches.set_offsets(positions)
-    fleches.set_UVC(vitesses_x, vitesses_y)
+    fleches.set_UVC(vitesses_x_norm, vitesses_y_norm)
     
-    # Mise à jour des cercles de visualisation pour suivre le poisson de référence
-    poisson_ref = poissons[poisson_ref_index]
-    centre_ref = (poisson_ref.x, poisson_ref.y)
-    cercle_repulsion.center = centre_ref
-    cercle_alignement.center = centre_ref
-    cercle_attraction.center = centre_ref
-    
-    return points, fleches, cercle_repulsion, cercle_alignement, cercle_attraction
+    return (fleches,)
 
 #------------------ Animation ------------------------------------
 # Création de l'animation
 ani = FuncAnimation(fig, update, frames=500, init_func=init, blit=True, interval=20)
-
-# Ajout d'une barre de couleur pour montrer la vitesse
-cbar = plt.colorbar(points)
-cbar.set_label('Vitesse')
 
 # Affichage
 plt.show()

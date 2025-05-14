@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from poisson import Poisson
-import matplotlib.colors as mcolors
 
 """ Partie 1 : Mouvement Aleatoire
 
@@ -23,26 +22,35 @@ poissons = Poisson.creer_banc(n,  xmin, xmax, ymin, ymax)
 
 #----------------- Configuration du graphique -------------------
 
-fig, ax = plt.subplots(figsize=(10, 10))
+fig, ax = plt.subplots(figsize=(10, 10), facecolor='white')
 ax.set_xlim(xmin, xmax)
 ax.set_ylim(ymin, ymax)
 ax.set_title('Simulation de poissons en temps réel')
 ax.set_xlabel('X')
 ax.set_ylabel('Y')
+ax.set_facecolor('white')
+for spine in ax.spines.values():
+    spine.set_visible(True)
+    spine.set_color('black')
 
 # Données initiales
 positions = np.array([[p.x, p.y] for p in poissons])
 vitesses_x, vitesses_y = np.array([p.Vx for p in poissons]), np.array([p.Vy for p in poissons])
-vitesses = np.sqrt(vitesses_x**2 + vitesses_y**2)
 
-# Affichage : points colorés selon la vitesse + flèches directionnelles
-points = ax.scatter(positions[:, 0], positions[:, 1], c=vitesses, cmap='viridis', s=100, alpha=0.8)
-fleches = ax.quiver(positions[:, 0], positions[:, 1], vitesses_x, vitesses_y, width=0.003, scale=40)
+# Normaliser les vecteurs de vitesse pour avoir des flèches de taille uniforme
+normes = np.sqrt(vitesses_x**2 + vitesses_y**2)
+normes[normes == 0] = 1  # Éviter la division par zéro
+vitesses_x_norm = vitesses_x / normes
+vitesses_y_norm = vitesses_y / normes
+
+# Affichage : uniquement des flèches de taille et couleur fixes
+fleches = ax.quiver(positions[:, 0], positions[:, 1], vitesses_x_norm, vitesses_y_norm, 
+                   color='blue', width=0.005, scale=30, pivot='mid')
 
 #----------------- Fonctions pour l'animation ----------------------
 
 def init():
-    return points, fleches
+    return (fleches,)
 
 def update(frame):
     """Mise à jour des positions, vitesses et affichage à chaque frame."""
@@ -55,24 +63,22 @@ def update(frame):
     positions = np.array([[p.x, p.y] for p in poissons])
     vitesses_x = np.array([p.Vx for p in poissons])
     vitesses_y = np.array([p.Vy for p in poissons])
-    vitesses = np.array([p.get_vitesse() for p in poissons])
     
-    points.set_offsets(positions)
-    points.set_array(vitesses)
+    # Normaliser les vecteurs de vitesse pour avoir des flèches de taille uniforme
+    normes = np.sqrt(vitesses_x**2 + vitesses_y**2)
+    normes[normes == 0] = 1  # Éviter la division par zéro
+    vitesses_x_norm = vitesses_x / normes
+    vitesses_y_norm = vitesses_y / normes
     
     fleches.set_offsets(positions)
-    fleches.set_UVC(vitesses_x, vitesses_y)
+    fleches.set_UVC(vitesses_x_norm, vitesses_y_norm)
     
-    return points, fleches
+    return (fleches,)
 
 #------------------ Animation ------------------------------------
 
 # Création de l'animation
 ani = FuncAnimation(fig, update, frames=500, init_func=init, blit=True, interval=20)
-
-# Ajout d'une barre de couleur pour montrer la vitesse
-cbar = plt.colorbar(points)
-cbar.set_label('Vitesse')
 
 # Affichage
 plt.show()

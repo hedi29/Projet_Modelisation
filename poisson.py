@@ -33,15 +33,35 @@ class Poisson:
             self.y = ymax
             self.Vy = -self.Vy
     
-    def contaminer(self, dV=0.1):
+    def contaminer(self, Vx, Vy, dV, norm=True):
         """Contamine le poisson et modifie son etat"""
         if not self.is_contaminated:
             self.is_contaminated = True
             self.color = 'green'
-            dVx = random.uniform(-dV, dV)
-            dVy = random.uniform(-dV, dV)
-            self.Vx = self.Vx + dVx
-            self.Vy = self.Vy + dVy
+            
+            if norm:
+
+                self.Vx = Vx + random.uniform(-dV, dV)
+                self.Vy = Vy + random.uniform(-dV, dV)
+            else:
+                # Calcul du vecteur vitesse
+                vector = np.array([Vx, Vy])
+                
+                # Calcul de la norme (magnitude) actuelle
+                norm = np.linalg.norm(vector)
+                
+                
+                # Variation aléatoire de la norme
+                norm_variation = norm * (1 + random.uniform(-dV, dV))
+                
+                # Conserver la direction mais ajuster la norme
+                vector_normalized = vector / norm
+                new_vector = vector_normalized * norm_variation
+                
+                self.Vx = new_vector[0]
+                self.Vy = new_vector[1]
+            
+    
 
     def get_position(self):
         """Retourne la position du poisson en tuple (x, y)."""
