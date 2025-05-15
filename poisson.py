@@ -197,6 +197,54 @@ class Poisson:
         
             poisson.set_vitesse(v, Vmax)
         
-       
-       
+    @staticmethod
+    def appliquer_regles_aoki_six_voisins(poissons, k_repulsion=0.05, k_alignement=0.03, 
+                                        k_attraction=0.01, Vmax=1.5):
+        """
+        Applique les règles d'Aoki à l'ensemble du banc de poissons,
+        mais en considérant uniquement les 6 plus proches voisins de chaque poisson.
+        """
+        positions = np.array([[p.x, p.y] for p in poissons])
+        kdtree = KDTree(positions)
+        
+        for i, poisson in enumerate(poissons):
+            # Etat actuel du poisson
+            p_i = np.array(poisson.get_position())
+            v_i = np.array([poisson.Vx, poisson.Vy])
+            
+            # Initialisation des forces
+            F_repulsion = np.zeros(2)
+            F_alignement = np.zeros(2)
+            F_attraction = np.zeros(2)
+            
+            # Recherche des 7 voisins les plus proches (le poisson lui-même inclus)
+            distances, indices = kdtree.query(p_i, k=7)  # k=7 car le premier est le poisson lui-même
+            
+            # Enlever le premier indice (le poisson lui-même)
+            indices = indices[1:] if len(indices) > 1 else []
+            
+            # Pour chaque voisin parmi les 6 plus proches
+            for j in indices:
+                voisin = poissons[j]
+                distance = Poisson.distance_euclidienne(poisson, voisin)
+                
+                # Appliquer toutes les forces en fonction de la distance
+                # Force de répulsion (plus forte pour les voisins très proches)
+                if distance < 1.0:  # Rayon de répulsion
+                    F_repulsion += Poisson.calculer_force_repulsion(poisson, voisin, k_repulsion)
+                
+                # Force d'alignement (pour les voisins à distance moyenne)
+                elif distance < 2.5:  # Rayon d'alignement
+                    F_alignement += Poisson.calculer_force_alignement(poisson, [voisin], k_alignement)
+                
+                # Force d'attraction (pour les voisins plus éloignés)
+                elif distance < 5.0:  # Rayon d'attraction
+                    F_attraction += Poisson.calculer_force_attraction(poisson, voisin, k_attraction)
+            
+            # Mise à jour de la vitesse
+            v = v_i + F_repulsion + F_alignement + F_attraction
+            
+            # Limitation de la vitesse maximale
+            poisson.set_vitesse(v, Vmax)
+        
         
