@@ -4,6 +4,8 @@ Ce projet permet de visualiser un groupe de poissons se déplaçant en temps ré
 - **Partie 1** : Mouvement aléatoire avec rebond sur les bords  
 - **Partie 2** : Propagation d'une contamination entre poissons
 - **Partie 3** : Règles comportementales d'Aoki (répulsion, alignement, attraction)
+- **Partie 4** : Effet de perturbation externe (ex : prédateur ou obstacle)  
+- **Partie 5** : Réseau d'influence basé sur la vision (cône de perception dynamique)
 
 ## Prérequis
 
@@ -33,6 +35,15 @@ Pour lancer la **Partie 3** (règles d'Aoki) :
 ```
 python Partie3.py
 ```
+Pour lancer la **Partie 4** (perturbation externe) :
+```
+python Partie4.py
+```
+
+Pour lancer la **Partie 5** (réseau d'influence visuelle) :
+```
+python Partie5.py
+```
 
 ## Fonctionnalités
 
@@ -55,16 +66,29 @@ python Partie3.py
   - **Alignement** (zone verte) : les poissons à distance moyenne s'alignent dans la même direction
   - **Attraction** (zone bleue) : les poissons éloignés sont attirés vers le groupe
 
+### Partie 4 : Perturbation Externe
+- Introduction d'un prédateur ou d'un obstacle dans l'environnement
+- Réaction collective du banc face à la perturbation
+- Observation des stratégies d'évitement ou de regroupement
+
+### Partie 5 : Réseau d'Influence Visuelle
+- Chaque poisson ne réagit qu'aux voisins visibles dans son cône de vision
+- Réseau dynamique basé sur la perception visuelle (angle et distance)
+- Application des règles de répulsion, alignement et attraction uniquement avec les poissons visibles
+- Observation de structures collectives plus réalistes
+
 ## Structure du Projet
 
 - `poisson.py` : Contient la classe Poisson qui définit le comportement individuel et collectif des poissons
 - `Partie1.py` : Mouvement aléatoire des poissons
 - `Partie2.py` : Propagation de la contamination dans le banc de poissons
 - `Partie3.py` : Simulation avec les règles comportementales d'Aoki
+- `Partie4.py` : Simulation avec perturbation externe
+- `Partie5.py` : Simulation avec réseau d'influence visuelle
 
 ## Paramètres Ajustables (Partie 3)
 
-Dans la **Partie 3**, vous pouvez ajuster plusieurs paramètres pour modifier le comportement du banc :
+Vous pouvez ajuster plusieurs paramètres pour modifier le comportement du banc :
 
 - **Nombre de poissons** : variable `n`
 - **Rayons des zones** : variables `rayon_repulsion`, `rayon_alignement`, `rayon_attraction`
