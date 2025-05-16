@@ -9,8 +9,6 @@ from poisson import Poisson
 
 Simulation d'un banc de poissons 2D avec propagation d'une contamination.
 
-Un poisson leader contamine les autres poissons à proximité.
-Les poissons contaminés suivent la direction et la vitesse du leader.
 """
 #---------------- Paramètres de simulation ---------------------
 n = 20           # Nombre de poissons
@@ -18,7 +16,7 @@ xmin, xmax = 0, 10
 ymin, ymax = 0, 10
 dt = 0.05
 distance_contamination = 0.5  # Distance à laquelle un poisson peut être contaminé
-variation_norme = True # Si True, la norme de la vitesse du poisson contaminé est modifiée sinon chaque composante de la vitesse est modifiée
+variation_norme = False # Si False, la norme de la vitesse du poisson contaminé est modifiée sinon chaque composante de la vitesse est modifiée
 pas_de_variation_norme = 0.05 # le variation de la norme ou de chaque composante de la vitesse
 
 #---------------- Initialisation des poissons ---------------------
@@ -45,7 +43,7 @@ for spine in ax.spines.values():
 positions = np.array([[p.x, p.y] for p in poissons])
 directions_x, directions_y = [], []
 
-# Normaliser les vecteurs de direction pour avoir des flèches de taille uniforme
+# fleche 
 for p in poissons:
     vx, vy = p.Vx, p.Vy
     norme = np.sqrt(vx**2 + vy**2)
@@ -57,7 +55,7 @@ for p in poissons:
 # Couleurs des poissons (leader=rouge, contaminés=vert, non-contaminés=bleu)
 colors = ['red' if p == leader else 'blue' for p in poissons]
 
-# Affichage des flèches (poissons)
+# Affichage des flèches 
 fleches = ax.quiver(positions[:, 0], positions[:, 1], directions_x, directions_y, 
                    color=colors, width=0.005, scale=30, pivot='mid')
 

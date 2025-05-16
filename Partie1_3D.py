@@ -8,15 +8,14 @@ from poisson_3D import Poisson3D
 
 Simulation d'un banc de poissons 3D avec rebond sur les bords.
 
-Chaque poisson est représenté par une position et une vitesse en 3D entre autres parametres.
-La simulation est animée à l'aide de matplotlib.
+
 """
 
 # Paramètres de simulation
-nombre_poissons = 20  # Augmenter le nombre de poissons pour mieux voir l'effet
-largeur_bassin = 100  # xmax
-hauteur_bassin = 100  # ymax
-profondeur_bassin = 100  # zmax
+nombre_poissons = 20 
+largeur_bassin = 100 
+hauteur_bassin = 100  
+profondeur_bassin = 100  
 xmin, xmax = 0, largeur_bassin
 ymin, ymax = 0, hauteur_bassin
 zmin, zmax = 0, profondeur_bassin
@@ -45,23 +44,19 @@ def init():
 
 # Fonction de mise à jour
 def update(frame):
-    # Déplacer chaque poisson et vérifier les collisions avec les bords
+    # Déplacer chaque poisson 
     for poisson in poissons:
         poisson.deplacer(dt)
         poisson.verifier_bords(xmin, xmax, ymin, ymax, zmin, zmax)
     
-    # Mise à jour des positions pour l'affichage
+    #  l'affichage
     positions = np.array([p.get_position() for p in poissons])
-    
-    # Mise à jour explicite des données du scatter
     scatter._offsets3d = (positions[:, 0], positions[:, 1], positions[:, 2])
-    
-    # Forcer un rafraîchissement du graphique
     fig.canvas.draw_idle()
     
     return scatter,
 
-# Création de l'animation avec blit=False pour les animations 3D
+# Création de l'animation 
 ani = animation.FuncAnimation(fig, update, frames=200, 
                              init_func=init, interval=50, 
                              blit=False)

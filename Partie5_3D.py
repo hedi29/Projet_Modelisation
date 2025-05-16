@@ -7,15 +7,15 @@ from poisson_3D import Poisson3D
 """ Partie 5 : Réseau d'Influence en 3D
 
 Simulation d'un banc de poissons 3D avec un réseau d'influence basé sur les connexions visuelles.
-Chaque poisson est influencé uniquement par les poissons qu'il peut voir dans son cône de vision,
-créant ainsi un réseau dynamique basé sur la perception visuelle en trois dimensions.
+
+
 """
 
 # ---------------- Paramètres de simulation ---------------------
 nombre_poissons = 50
-largeur_bassin = 200  # xmax
-hauteur_bassin = 200  # ymax
-profondeur_bassin = 200  # zmax
+largeur_bassin = 50  # xmax
+hauteur_bassin = 50  # ymax
+profondeur_bassin = 50  # zmax
 xmin, xmax = 0, largeur_bassin
 ymin, ymax = 0, hauteur_bassin
 zmin, zmax = 0, profondeur_bassin
@@ -31,11 +31,11 @@ rayon_attraction = 50.0
 
 # Coefficients de force pour chaque règle
 k_repulsion = 0.05
-k_alignement = 0.03
+k_alignement = 0.10
 k_attraction = 0.01
 
 # Vitesse maximale des poissons
-vitesse_max = 15.0
+vitesse_max = 20.0
 
 # ---------------- Initialisation des poissons ---------------------
 poissons = Poisson3D.creer_banc(nombre_poissons, xmin, xmax, ymin, ymax, zmin, zmax, Vmin=-5, Vmax=5)

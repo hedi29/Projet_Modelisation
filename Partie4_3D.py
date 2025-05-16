@@ -8,9 +8,7 @@ from poisson_3D import Poisson3D
 
 Simulation d'un banc de poissons 3D avec les règles d'Aoki limitées aux 6 plus proches voisins.
 
-Contrairement au modèle initial des cercles concentriques, des études montrent 
-que les poissons sont principalement influencés par leurs six voisins les plus proches, 
-indépendamment de la densité globale du banc.
+
 """
 
 # ---------------- Paramètres de simulation ---------------------

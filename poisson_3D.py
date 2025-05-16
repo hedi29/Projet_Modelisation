@@ -6,34 +6,34 @@ class Poisson3D:
     
     def __init__(self, x, y, z, Vx, Vy, Vz, color='blue'):
         
-        self.x, self.y, self.z = x, y, z       # Initialisation de la position (x, y, z)
-        self.Vx, self.Vy, self.Vz = Vx, Vy, Vz # Initialisation de la vitesse (Vx, Vy, Vz)
+        self.x, self.y, self.z = x, y, z   
+        self.Vx, self.Vy, self.Vz = Vx, Vy, Vz 
         self.is_contaminated = False 
         self.color = color  
 
     def deplacer(self, Dt):
-        """Gère les deplacements des poissons en fonction de la vitesse (Vx, Vy, Vz) et le pas du temps Dt"""
+        """Déplace le poisson en fonction de sa vitesse"""
         self.x += self.Vx * Dt
         self.y += self.Vy * Dt
         self.z += self.Vz * Dt
     
     def verifier_bords(self, xmin, xmax, ymin, ymax, zmin, zmax):
-        """Gère les rebonds sur les bords en 3D"""
-        # Gestion des bords au niveau de l'axe des x 
+        """Gère les rebonds sur les bords"""
+        # l'axe des x 
         if self.x < xmin:
             self.x = xmin
             self.Vx = -self.Vx  
         elif self.x > xmax:
             self.x = xmax
             self.Vx = -self.Vx
-        # Gestion des bords au niveau de l'axe des y 
+        # l'axe des y 
         if self.y < ymin:
             self.y = ymin
             self.Vy = -self.Vy
         elif self.y > ymax:
             self.y = ymax
             self.Vy = -self.Vy
-        # Gestion des bords au niveau de l'axe des z
+        # l'axe des z
         if self.z < zmin:
             self.z = zmin
             self.Vz = -self.Vz
@@ -42,7 +42,7 @@ class Poisson3D:
             self.Vz = -self.Vz
     
     def contaminer(self, Vx, Vy, Vz, dV, norm=True):
-        """Contamine le poisson et modifie son etat en 3D"""
+        """Contamine le poisson et modifie son etat"""
         if not self.is_contaminated:
             self.is_contaminated = True
             self.color = 'green'
@@ -72,7 +72,7 @@ class Poisson3D:
                     self.Vz = new_vector[2]
     
     def get_position(self):
-        """Retourne la position du poisson en tuple (x, y, z)."""
+        """Retourne la position du poisson"""
         return (self.x, self.y, self.z)
 
     def get_vitesse(self):
@@ -80,13 +80,11 @@ class Poisson3D:
         return np.sqrt(self.Vx**2 + self.Vy**2 + self.Vz**2)
     
     def get_vitesse_np(self):
-        """Retourne le vecteur vitesse du poisson sous forme de numpy array [Vx, Vy, Vz]."""
+        """Retourne le vecteur vitesse du poisson"""
         return np.array([self.Vx, self.Vy, self.Vz])
     
     def set_vitesse(self, v, Vmax=1.5):
-        """
-        Met à jour la vitesse du poisson avec une limitation de vitesse maximale.
-        """
+        """Met à jour la vitesse du poisson"""
         if not isinstance(v, np.ndarray):
             v = np.array(v)
         V = np.linalg.norm(v)
@@ -98,14 +96,14 @@ class Poisson3D:
     
     @staticmethod
     def distance_euclidienne(poisson1, poisson2):
-        """Calcule la distance euclidienne entre deux poissons en 3D."""
+        """Calcule la distance euclidienne entre deux poissons"""
         pos1 = np.array(poisson1.get_position())
         pos2 = np.array(poisson2.get_position())
         return np.linalg.norm(pos1 - pos2)
     
     @staticmethod
     def creer_banc(nb_poissons, xmin, xmax, ymin, ymax, zmin, zmax, Vmin=-1, Vmax=1):
-        """Crée un banc de poissons avec des positions et vitesses aléatoires en 3D"""
+        """Crée un banc de poissons avec des positions et vitesses aléatoires"""
         poissons = []
         for _ in range(nb_poissons):
             x = np.random.uniform(xmin, xmax)
@@ -119,7 +117,7 @@ class Poisson3D:
         
     @staticmethod
     def calculer_force_repulsion(poisson, voisin, k_repulsion=0.05):
-        """Calcule la force de répulsion entre deux poissons en 3D."""
+        """Calcule la force de répulsion entre deux poissons"""
         pos_i = np.array(poisson.get_position())
         pos_j = np.array(voisin.get_position())
         vecteur_d = pos_i - pos_j
@@ -131,7 +129,7 @@ class Poisson3D:
     
     @staticmethod
     def calculer_force_alignement(poisson, voisins, k_alignement=0.03):
-        """Calcule la force d'alignement entre un poisson et ses voisins en 3D."""
+        """Calcule la force d'alignement entre un poisson et ses voisins"""
         if not voisins:
             return np.zeros(3)
         direction_moyenne = np.zeros(3)
@@ -145,7 +143,7 @@ class Poisson3D:
     
     @staticmethod
     def calculer_force_attraction(poisson, voisin, k_attraction=0.01):
-        """Calcule la force d'attraction entre deux poissons en 3D."""
+        """Calcule la force d'attraction entre deux poissons"""
         pos_i = np.array(poisson.get_position())
         pos_j = np.array(voisin.get_position())
         vecteur_d = pos_i - pos_j
@@ -160,7 +158,7 @@ class Poisson3D:
     def appliquer_regles_aoki(poissons, rayon_repulsion=1.0, rayon_alignement=2.5, 
                              rayon_attraction=5.0, k_repulsion=0.05, k_alignement=0.03, 
                              k_attraction=0.01, Vmax=1.5):
-        """Applique les règles d'Aoki à l'ensemble du banc de poissons en 3D."""
+        """Applique les règles d'Aoki à l'ensemble du banc de poissons"""
        
         positions = np.array([p.get_position() for p in poissons])
         kdtree = KDTree(positions)
@@ -215,10 +213,7 @@ class Poisson3D:
     @staticmethod
     def appliquer_regles_aoki_six_voisins(poissons, k_repulsion=0.05, k_alignement=0.03, 
                                         k_attraction=0.01, Vmax=1.5):
-        """
-        Applique les règles d'Aoki à l'ensemble du banc de poissons en 3D,
-        mais en considérant uniquement les 6 plus proches voisins de chaque poisson.
-        """
+        """Applique les règles d'Aoki avec 6 voisins"""
         positions = np.array([p.get_position() for p in poissons])
         kdtree = KDTree(positions)
         
@@ -264,9 +259,7 @@ class Poisson3D:
             
     @staticmethod
     def voisins_visibles(poisson, poissons, vision_angle=60, rayon_max=50.0):
-        """
-        Retourne la liste des poissons visibles dans le cône de vision de poisson en 3D.
-        """
+        """Retourne la liste des poissons visibles"""
         visibles = []
         p = np.array(poisson.get_position())
         v = poisson.get_vitesse_np()
@@ -300,9 +293,7 @@ class Poisson3D:
                                            rayon_repulsion=10.0, rayon_alignement=25.0, rayon_attraction=50.0,
                                            k_repulsion=0.05, k_alignement=0.03, k_attraction=0.01,
                                            Vmax=15.0):
-        """
-        Applique les règles de comportement en utilisant uniquement les voisins visibles dans le cône de vision en 3D.
-        """
+        """Applique les règles avec voisins visibles"""
         for poisson in poissons:
             
             visibles = Poisson3D.voisins_visibles(poisson, poissons, vision_angle, rayon_max=rayon_attraction)
