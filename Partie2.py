@@ -17,7 +17,7 @@ n = 20           # Nombre de poissons
 xmin, xmax = 0, 10 
 ymin, ymax = 0, 10
 dt = 0.05
-distance_contamination = 0.5  # Distance à laquelle un poisson peut être contaminé
+distance_contamination = 0.7# Distance à laquelle un poisson peut être contaminé
 variation_norme = True # Si True, la norme de la vitesse du poisson contaminé est modifiée sinon chaque composante de la vitesse est modifiée
 pas_de_variation_norme = 0.05 # le variation de la norme ou de chaque composante de la vitesse
 
