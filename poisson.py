@@ -40,9 +40,9 @@ class Poisson:
             self.color = 'green'
             
             if norm:
-
                 self.Vx = Vx + random.uniform(-dV, dV)
                 self.Vy = Vy + random.uniform(-dV, dV)
+            
             else:
                 # Calcul du vecteur vitesse
                 vector = np.array([Vx, Vy])
@@ -142,57 +142,6 @@ class Poisson:
         else:
             return np.zeros(2)
     
-    @staticmethod
-    def est_visible(poisson_observateur, poisson_cible, angle_cone_deg=60):
-        """
-        Détermine si un poisson cible est visible par un poisson observateur,
-        c'est-à-dire s'il se trouve dans son cône de vision.
-        
-        Args:
-            poisson_observateur: Le poisson qui observe
-            poisson_cible: Le poisson qui est potentiellement visible
-            angle_cone_deg: L'angle du cône de vision en degrés (60° par défaut)
-            
-        Returns:
-            bool: True si le poisson cible est visible, False sinon
-        """
-        # Si les poissons sont identiques, retourner False
-        if poisson_observateur == poisson_cible:
-            return False
-            
-        # Direction de déplacement de l'observateur (vecteur normalisé)
-        v_direction = np.array([poisson_observateur.Vx, poisson_observateur.Vy])
-        norme_v = np.linalg.norm(v_direction)
-        if norme_v == 0:
-            return False  # Si l'observateur ne bouge pas, il ne voit rien
-            
-        v_direction = v_direction / norme_v
-        
-        # Vecteur de l'observateur vers la cible
-        p_obs = np.array(poisson_observateur.get_position())
-        p_cible = np.array(poisson_cible.get_position())
-        v_distance = p_cible - p_obs
-        
-        # Si la distance est nulle, retourner False
-        norme_d = np.linalg.norm(v_distance)
-        if norme_d == 0:
-            return False
-            
-        v_distance = v_distance / norme_d
-        
-        # Calcul de l'angle entre la direction de déplacement et le vecteur distance
-        # en utilisant le produit scalaire: cos(angle) = (a·b)/(|a|·|b|)
-        cos_angle = np.dot(v_direction, v_distance)
-        
-        # Convertir l'angle du cône en radians et calculer le cosinus
-        angle_cone_rad = np.radians(angle_cone_deg / 2)  # Demi-angle
-        cos_angle_cone = np.cos(angle_cone_rad)
-        
-        # Le poisson est visible si l'angle est inférieur à la moitié de l'angle du cône
-        # Comme cos(angle) diminue lorsque l'angle augmente pour [0, 180°],
-        # on vérifie si cos(angle) > cos(angle_cone)
-        return cos_angle > cos_angle_cone
-
     @staticmethod
     def appliquer_regles_aoki(poissons, rayon_repulsion=1.0, rayon_alignement=2.5, 
                              rayon_attraction=5.0, k_repulsion=0.05, k_alignement=0.03, 
@@ -298,59 +247,71 @@ class Poisson:
             # Limitation de la vitesse maximale
             poisson.set_vitesse(v, Vmax)
         
+    
+
     @staticmethod
-    def appliquer_regles_aoki_vision(poissons, angle_vision=60, 
-                                   rayon_repulsion=1.0, rayon_alignement=2.5, rayon_attraction=5.0,
-                                   k_repulsion=0.05, k_alignement=0.03, k_attraction=0.01, 
-                                   Vmax=1.5):
+    def voisins_visibles(poisson, poissons, vision_angle=60, rayon_max=5.0):
         """
-        Applique les règles d'Aoki à l'ensemble du banc de poissons,
-        mais en considérant uniquement les poissons visibles dans le cône de vision.
+        Retourne la liste des poissons visibles dans le cône de vision de poisson.
         """
-        for i, poisson in enumerate(poissons):
-            # État actuel du poisson
-            p_i = np.array(poisson.get_position())
-            v_i = np.array([poisson.Vx, poisson.Vy])
+        visibles = []
+        p = np.array(poisson.get_position())
+        v = poisson.get_vitesse_np()
+        norme_v = np.linalg.norm(v)
+        
+        if norme_v == 0:
+            return visibles
+        
+        direction_poisson = v / norme_v
+        demi_angle = np.deg2rad(vision_angle / 2)
+        
+        for autre in poissons:
+            if autre is poisson:
+                continue
+            p_autre = np.array(autre.get_position())
+            d = p_autre - p
+            norme_d = np.linalg.norm(d)
             
-            # Initialisation des forces
+            if norme_d == 0 or norme_d > rayon_max:
+                continue
+            
+            direction = d / norme_d
+            angle = np.arccos(np.clip(np.dot(direction_poisson, direction), -1, 1))
+            
+            if angle <= demi_angle:
+                visibles.append(autre)
+        return visibles
+   
+    @staticmethod
+    def appliquer_regles_influence_visuelle(poissons, vision_angle=60,
+                                            rayon_repulsion=1.0, rayon_alignement=2.5, rayon_attraction=5.0,
+                                            k_repulsion=0.05, k_alignement=0.03, k_attraction=0.01,
+                                            Vmax=1.5):
+        """
+        Applique les règles de comportement en utilisant uniquement les voisins visibles dans le cône de vision.
+        """
+        for poisson in poissons:
+            
+            visibles = Poisson.voisins_visibles(poisson, poissons, vision_angle, rayon_max=rayon_attraction)
+           
             F_repulsion = np.zeros(2)
             F_alignement = np.zeros(2)
             F_attraction = np.zeros(2)
-            
-            # Listes pour stocker les voisins visibles dans chaque zone
-            voisins_repulsion = []
+           
             voisins_alignement = []
-            voisins_attraction = []
-            
-            # Déterminer les poissons visibles
-            poissons_visibles = []
-            for j, voisin in enumerate(poissons):
-                if i != j and Poisson.est_visible(poisson, voisin, angle_vision):
-                    poissons_visibles.append(voisin)
-                    
-                    # Classement des voisins selon leur distance
-                    distance = Poisson.distance_euclidienne(poisson, voisin)
-                    if distance < rayon_repulsion:
-                        voisins_repulsion.append(voisin)
-                    elif distance < rayon_alignement:
-                        voisins_alignement.append(voisin)
-                    elif distance < rayon_attraction:
-                        voisins_attraction.append(voisin)
-            
-            # Calcul des forces pour chaque type de voisin visible
-            for voisin in voisins_repulsion:
-                F_repulsion += Poisson.calculer_force_repulsion(poisson, voisin, k_repulsion)
+            for voisin in visibles:
                 
-            if voisins_alignement:
-                F_alignement = Poisson.calculer_force_alignement(poisson, voisins_alignement, k_alignement)
-            
-            for voisin in voisins_attraction:
-                F_attraction += Poisson.calculer_force_attraction(poisson, voisin, k_attraction)
+                distance = Poisson.distance_euclidienne(poisson, voisin)
                 
-            # Mise à jour de la vitesse
-            v = v_i + F_repulsion + F_alignement + F_attraction
-            
-            # Limitation de la vitesse maximale
+                if distance < rayon_repulsion:
+                    F_repulsion += Poisson.calculer_force_repulsion(poisson, voisin, k_repulsion)
+                
+                elif distance < rayon_alignement:
+                    voisins_alignement.append(voisin)
+                
+                elif distance < rayon_attraction:
+                    F_attraction += Poisson.calculer_force_attraction(poisson, voisin, k_attraction)
+           
+            F_alignement = Poisson.calculer_force_alignement(poisson, voisins_alignement, k_alignement)
+            v = poisson.get_vitesse_np() + F_repulsion + F_alignement + F_attraction
             poisson.set_vitesse(v, Vmax)
-        
-        
