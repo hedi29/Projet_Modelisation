@@ -54,9 +54,6 @@ python Partie3.py
   - **Répulsion** (zone rouge) : les poissons trop proches s'éloignent les uns des autres
   - **Alignement** (zone verte) : les poissons à distance moyenne s'alignent dans la même direction
   - **Attraction** (zone bleue) : les poissons éloignés sont attirés vers le groupe
-- Cercles de visualisation qui suivent un poisson de référence pour observer les différentes zones d'influence
-- Utilisation d'un KDTree pour une recherche efficace des voisins
-- Code optimisé pour gérer un grand nombre de poissons
 
 ## Structure du Projet
 
