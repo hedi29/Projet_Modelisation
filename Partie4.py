@@ -7,9 +7,7 @@ from poisson import Poisson
 
 Simulation d'un banc de poissons 2D avec les règles d'Aoki limitées aux 6 plus proches voisins.
 
-Contrairement au modèle initial des cercles concentriques, des études montrent 
-que les poissons sont principalement influencés par leurs six voisins les plus proches, 
-indépendamment de la densité globale du banc.
+
 """
 
 #---------------- Paramètres de simulation ---------------------
@@ -22,6 +20,11 @@ dt = 0.05
 k_repulsion = 0.05
 k_alignement = 0.03
 k_attraction = 0.01
+
+# Paramètres des rayons pour les règles d'Aoki
+rayon_repulsion = 1.0
+rayon_alignement = 2.5
+rayon_attraction = 5.0
 
 # Vitesse maximale des poissons
 vitesse_max = 1.5
@@ -45,7 +48,7 @@ for spine in ax.spines.values():
 positions = np.array([[p.x, p.y] for p in poissons])
 directions_x, directions_y = [], []
 
-# Normaliser les vecteurs de direction pour avoir des flèches de taille uniforme
+# flèches
 for p in poissons:
     vx, vy = p.Vx, p.Vy
     norme = np.sqrt(vx**2 + vy**2)
@@ -70,9 +73,10 @@ def update(frame):
     """Mise à jour des positions, vitesses et affichage à chaque frame."""
     
     # Application des règles d'Aoki avec seulement les 6 plus proches voisins
-    Poisson.appliquer_regles_aoki_six_voisins(poissons, k_repulsion, k_alignement, 
+    Poisson.appliquer_regles_aoki_six_voisins(poissons, rayon_repulsion, rayon_alignement, 
+                                             rayon_attraction, k_repulsion, k_alignement, 
                                              k_attraction, vitesse_max)
-    
+
     # Déplacement des poissons
     for poisson in poissons:
         poisson.deplacer(dt)

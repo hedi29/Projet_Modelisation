@@ -6,12 +6,11 @@ from poisson import Poisson
 """ Partie 5 : Réseau d'Influence
 
 Simulation d'un banc de poissons 2D avec un réseau d'influence basé sur les connexions visuelles.
-Chaque poisson est influencé uniquement par les poissons qu'il peut voir dans son cône de vision,
-créant ainsi un réseau dynamique basé sur la perception visuelle.
+
 """
 
 #---------------- Paramètres de simulation ---------------------
-n = 50           # Nombre de poissons
+n = 30          # Nombre de poissons
 xmin, xmax = 0, 20 
 ymin, ymax = 0, 20
 dt = 0.05
@@ -21,7 +20,7 @@ angle_cone = 60
 
 # Coefficients de force pour chaque règle
 k_repulsion = 0.05
-k_alignement = 0.03
+k_alignement = 0.09
 k_attraction = 0.01
 
 # Rayons d'influence pour chaque règle

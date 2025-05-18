@@ -8,11 +8,7 @@ from poisson_3D import Poisson3D
 
 Simulation d'un banc de poissons 3D avec les règles d'Aoki (répulsion, alignement, attraction).
 
-Chaque poisson est représenté par une position et une vitesse en 3D, et ajuste son comportement
-selon les trois règles fondamentales :
-- Répulsion : les poissons s'éloignent les uns des autres quand ils sont trop proches
-- Alignement : les poissons s'alignent avec leurs voisins à distance moyenne
-- Attraction : les poissons se rapprochent de leurs voisins éloignés
+
 """
 
 # ---------------- Paramètres de simulation ---------------------

@@ -7,22 +7,17 @@ from poisson import Poisson
 
 Simulation d'un banc de poissons 2D avec les règles d'Aoki (répulsion, alignement, attraction).
 
-Chaque poisson est représenté par une position et une vitesse, et ajuste son comportement
-selon les trois règles fondamentales :
-- Répulsion : les poissons s'éloignent les uns des autres quand ils sont trop proches
-- Alignement : les poissons s'alignent avec leurs voisins à distance moyenne
-- Attraction : les poissons se rapprochent de leurs voisins éloignés
 """
 
 #---------------- Paramètres de simulation ---------------------
-n = 50           # Nombre de poissons
-xmin, xmax = 0, 10 
-ymin, ymax = 0, 10
+n = 50          
+xmin, xmax = 0, 100 
+ymin, ymax = 0, 100
 dt = 0.05
 
 # Paramètres des rayons pour les règles d'Aoki
-rayon_repulsion = 1.0
-rayon_alignement = 2.5
+rayon_repulsion = 1.5
+rayon_alignement = 3.5
 rayon_attraction = 5.0
 
 # Coefficients de force pour chaque règle
@@ -52,12 +47,12 @@ for spine in ax.spines.values():
 positions = np.array([[p.x, p.y] for p in poissons])
 directions_x, directions_y = [], []
 
-# Normaliser les vecteurs de direction pour avoir des flèches de taille uniforme
+#flèches
 for p in poissons:
     vx, vy = p.Vx, p.Vy
     norme = np.sqrt(vx**2 + vy**2)
     if norme == 0:
-        norme = 1  # Éviter la division par zéro
+        norme = 1  
     directions_x.append(vx / norme)
     directions_y.append(vy / norme)
 

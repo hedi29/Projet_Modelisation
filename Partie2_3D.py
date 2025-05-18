@@ -9,19 +9,21 @@ from poisson_3D import Poisson3D
 
 Simulation d'un banc de poissons 3D avec propagation d'une contamination.
 
-Un poisson leader contamine les autres poissons à proximité.
-Les poissons contaminés suivent la direction et la vitesse du leader.
 """
 # ---------------- Paramètres de simulation ---------------------
 nombre_poissons = 20
-largeur_bassin = 100  # xmax
-hauteur_bassin = 100  # ymax
-profondeur_bassin = 100  # zmax
+largeur_bassin = 100  
+hauteur_bassin = 100  
+profondeur_bassin = 100  
 xmin, xmax = 0, largeur_bassin
 ymin, ymax = 0, hauteur_bassin
 zmin, zmax = 0, profondeur_bassin
 dt = 0.1
+<<<<<<< HEAD
 distance_contamination = 25  # Distance à laquelle un poisson peut être contaminé
+=======
+distance_contamination = 25.0  # Distance à laquelle un poisson peut être contaminé
+>>>>>>> 9533e35ed2bbaeab188e0767de8f2601046f9b14
 variation_norme = True  # Si True, la norme de la vitesse du poisson contaminé est modifiée sinon chaque composante de la vitesse est modifiée
 pas_de_variation_norme = 0.05  # Variation de la norme ou de chaque composante de la vitesse
 

@@ -6,26 +6,26 @@ class Poisson:
     
     def __init__(self, x, y, Vx, Vy, color='blue'):
         
-        self.x, self.y = x, y     # Initialisation de la position (x, y) 
-        self.Vx, self.Vy = Vx, Vy # Initialisation de la vitesse (Vx, Vy)
+        self.x, self.y = x, y    
+        self.Vx, self.Vy = Vx, Vy
         self.is_contaminated = False 
         self.color = color  
 
     def deplacer(self, Dt):
-        """Gère les deplacements des poissons en fonction de la vitesse (Vx, Vy) et le pas du temps Dt"""
+        """Déplace le poisson en fonction de sa vitesse"""
         self.x += self.Vx * Dt
         self.y += self.Vy * Dt
     
     def verifier_bords(self, xmin, xmax, ymin, ymax):
         """Gère les rebonds sur les bords """
-        # Gestion des bords au niveau de l'axe des x 
+        # l'axe des x 
         if self.x < xmin:
             self.x = xmin
             self.Vx = -self.Vx  
         elif self.x > xmax:
             self.x = xmax
             self.Vx = -self.Vx
-        # Gestion des bords au niveau de l'axe des y 
+        # l'axe des y 
         if self.y < ymin:
             self.y = ymin
             self.Vy = -self.Vy
@@ -64,7 +64,7 @@ class Poisson:
     
 
     def get_position(self):
-        """Retourne la position du poisson en tuple (x, y)."""
+        """Retourne la position du poisson ."""
         return (self.x, self.y)
 
     def get_vitesse(self):
@@ -198,7 +198,8 @@ class Poisson:
             poisson.set_vitesse(v, Vmax)
         
     @staticmethod
-    def appliquer_regles_aoki_six_voisins(poissons, k_repulsion=0.05, k_alignement=0.03, 
+    def appliquer_regles_aoki_six_voisins(poissons,rayon_repulsion=1.0, rayon_alignement=2.5, 
+                             rayon_attraction=5.0, k_repulsion=0.05, k_alignement=0.03, 
                                         k_attraction=0.01, Vmax=1.5):
         """
         Applique les règles d'Aoki à l'ensemble du banc de poissons,
@@ -229,16 +230,16 @@ class Poisson:
                 distance = Poisson.distance_euclidienne(poisson, voisin)
                 
                 # Appliquer toutes les forces en fonction de la distance
-                # Force de répulsion (plus forte pour les voisins très proches)
-                if distance < 1.0:  # Rayon de répulsion
+                # Force de répulsion 
+                if distance < rayon_repulsion:  
                     F_repulsion += Poisson.calculer_force_repulsion(poisson, voisin, k_repulsion)
                 
-                # Force d'alignement (pour les voisins à distance moyenne)
-                elif distance < 2.5:  # Rayon d'alignement
+                # Force d'alignement
+                elif distance < rayon_alignement:  
                     F_alignement += Poisson.calculer_force_alignement(poisson, [voisin], k_alignement)
                 
-                # Force d'attraction (pour les voisins plus éloignés)
-                elif distance < 5.0:  # Rayon d'attraction
+                # Force d'attraction 
+                elif distance < rayon_attraction: 
                     F_attraction += Poisson.calculer_force_attraction(poisson, voisin, k_attraction)
             
             # Mise à jour de la vitesse

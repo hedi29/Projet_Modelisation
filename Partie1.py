@@ -7,14 +7,12 @@ from poisson import Poisson
 
 Simulation d'un banc de poissons 2D avec rebond sur les bords.
 
-Chaque poisson est représenté par une position et une vitesse entre autres parametres.
-La simulation est animée à l'aide de matplotlib.
 """
 #---------------- Paramètres de simulation ---------------------
 n = 20           # Nombre de poissons
 xmin, xmax = 0, 10 
 ymin, ymax = 0, 10
-dt = 0.05
+dt = 0.05       # pas de temps
 
 #---------------- Initialisation des poissons ---------------------
 
@@ -37,13 +35,12 @@ for spine in ax.spines.values():
 positions = np.array([[p.x, p.y] for p in poissons])
 vitesses_x, vitesses_y = np.array([p.Vx for p in poissons]), np.array([p.Vy for p in poissons])
 
-# Normaliser les vecteurs de vitesse pour avoir des flèches de taille uniforme
+# fléche
 normes = np.sqrt(vitesses_x**2 + vitesses_y**2)
 normes[normes == 0] = 1  # Éviter la division par zéro
 vitesses_x_norm = vitesses_x / normes
 vitesses_y_norm = vitesses_y / normes
 
-# Affichage : uniquement des flèches de taille et couleur fixes
 fleches = ax.quiver(positions[:, 0], positions[:, 1], vitesses_x_norm, vitesses_y_norm, 
                    color='blue', width=0.005, scale=30, pivot='mid')
 
@@ -64,9 +61,9 @@ def update(frame):
     vitesses_x = np.array([p.Vx for p in poissons])
     vitesses_y = np.array([p.Vy for p in poissons])
     
-    # Normaliser les vecteurs de vitesse pour avoir des flèches de taille uniforme
+    # fléche
     normes = np.sqrt(vitesses_x**2 + vitesses_y**2)
-    normes[normes == 0] = 1  # Éviter la division par zéro
+    normes[normes == 0] = 1 
     vitesses_x_norm = vitesses_x / normes
     vitesses_y_norm = vitesses_y / normes
     
